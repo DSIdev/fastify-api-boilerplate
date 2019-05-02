@@ -7,7 +7,7 @@ const log = require("./logger")();
 // Require the fastify framework and instantiate it
 const fastify = require("fastify")({
   logger: log,
-  maxParamLength: 50,
+  maxParamLength: 40,
   onProtoPoisoning: "remove"
 });
 
