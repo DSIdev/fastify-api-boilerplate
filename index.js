@@ -35,10 +35,9 @@ routes.forEach((route, index) => {
 });
 
 // Generates graphical representaion of routes
-/* fastify.ready(() => {
-     console.log(fastify.printRoutes());
-   });
-*/
+fastify.ready(() => {
+  console.log(fastify.printRoutes());
+});
 
 // Run the server!
 const start = async () => {
