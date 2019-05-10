@@ -6,37 +6,17 @@ const MongooseHelper = require("../plugins/MongooseHelper");
 // Get Data Models
 const User = require("../models/User");
 
+const userService = require("../services/user");
+
 // Get all users
 exports.getUsers = async (req, reply) => {
-  try {
-    const resultLimit = 2;
-    let time = Date.now();
-    const users = await User.find().limit(resultLimit);
-    return [
-      {
-        queryTime: Date.now() - time,
-        message: `Limiting to ${resultLimit} entries`
-      },
-      ...users
-    ];
-  } catch (err) {
-    return reply.send(new createError(err));
-  }
+  reply.send(await userService.getAllUsers());
 };
 
 // Get single user by ID
 exports.getSingleUser = async (req, reply) => {
   const userID = req.params.id;
-  if (!mongoose.Types.ObjectId.isValid(userID)) {
-    return reply.send(new createError.BadRequest("Invalid ID"));
-  }
-  try {
-    const user = await User.findById(userID);
-    if (!user) return reply.send(new createError.NotFound("Unknown ID"));
-    return reply.send(user);
-  } catch (err) {
-    return reply.send(new createError(err));
-  }
+  reply.send(await userService.getUserById(userID));
 };
 
 // Add a new user

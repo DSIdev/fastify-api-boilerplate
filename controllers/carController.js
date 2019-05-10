@@ -1,6 +1,6 @@
 // External Dependancies
-const boom = require("boom");
 const mongoose = require("mongoose");
+const createError = require("http-errors");
 
 // Get Data Models
 const Car = require("../models/Car");
@@ -12,23 +12,18 @@ exports.getCars = async (req, reply) => {
     const cars = await Car.find({});
     return cars;
   } catch (err) {
-    throw boom.boomify(err);
+    return reply.send(new createError(err));
   }
 };
 
 // Get single car by ID
 exports.getSingleCar = async (req, reply) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
-    return new boom("Invalid ID provided", {
-      statusCode: 404
-    });
+    return reply.send(new createError.BadRequest("Invalid ID"));
   try {
     const id = req.params.id;
     const car = await Car.findById(id);
-    if (car === null)
-      return new boom("ID not found", {
-        statusCode: 404
-      });
+    if (car === null) return reply.send(new createError.NotFound("Unknown ID"));
     return car;
   } catch (err) {
     err.statusCode = 404;
@@ -43,7 +38,7 @@ exports.addCar = async (req, reply) => {
     return await car.save();
   } catch (err) {
     console.log(err);
-    throw boom.boomify(err);
+    return reply.send(new createError(err));
   }
 };
 
@@ -56,7 +51,7 @@ exports.updateCar = async (req, reply) => {
     const update = await Car.findByIdAndUpdate(id, updateData, { new: true });
     return update;
   } catch (err) {
-    throw boom.boomify(err);
+    return reply.send(new createError(err));
   }
 };
 
@@ -67,6 +62,6 @@ exports.deleteCar = async (req, reply) => {
     const car = await Car.findByIdAndRemove(id);
     return car;
   } catch (err) {
-    throw boom.boomify(err);
+    return reply.send(new createError(err));
   }
 };

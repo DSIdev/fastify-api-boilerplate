@@ -1,5 +1,5 @@
-const boom = require("boom");
 const User = require("../models/OOUser");
+const createError = require("http-errors");
 
 async function getData(userID) {
   try {
@@ -11,7 +11,7 @@ async function getData(userID) {
       .exec();
     return userData;
   } catch (error) {
-    throw error;
+    return error;
   }
 }
 
@@ -25,8 +25,8 @@ async function getHierarchyFor(parent) {
         if (nextEmp != null)
           parent.reportees[i] = await getHierarchyFor(nextEmp);
       }
-    } catch (ex) {
-      throw boom.boomify(ex);
+    } catch (err) {
+      return new createError(err);
     }
     return Promise.resolve(parent);
   }
@@ -38,7 +38,7 @@ exports.getH = async (req, res) => {
     req.params.id == "" ||
     req.params.id == null
   ) {
-    throw boom.badRequest("Missing required parameter.");
+    return res.send(new createError.BadRequest("Invalid ID"));
   }
   let seed;
 
@@ -52,13 +52,13 @@ exports.getH = async (req, res) => {
       .lean()
       .exec();
   } catch (notFoundErr) {
-    throw boom.boomify(notFoundErr);
+    return res.send(new createError.NotFound("Unknown ID"));
   }
 
   try {
     result = await getHierarchyFor(seed);
     res.send(result);
   } catch (err) {
-    throw boom.boomify(err);
+    return res.send(new createError(err));
   }
 };

@@ -7,7 +7,7 @@ const log = require("./logger")();
 // Require the fastify framework and instantiate it
 const fastify = require("fastify")({
   logger: log,
-  maxParamLength: 40,
+  maxParamLength: 50,
   onProtoPoisoning: "remove"
 });
 
@@ -17,17 +17,11 @@ const mongoose = require("mongoose");
 // Import Routes
 const routes = require("./routes");
 
-// Import Swagger Options
-const swagger = require("./config/swagger");
-
-// Register Swagger
-fastify.register(require("fastify-swagger"), swagger.options);
-
 // Connect to DB
 mongoose
   .connect(conf.MONGO_URI, { useNewUrlParser: true, autoIndex: false })
-  .then(() => console.log("MongoDB connected..."))
-  .catch(err => console.log(err));
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.log("===", err));
 
 // Loop over each route
 routes.forEach((route, index) => {
@@ -35,17 +29,17 @@ routes.forEach((route, index) => {
 });
 
 // Generates graphical representaion of routes
-fastify.ready(() => {
+/*fastify.ready(() => {
   console.log(fastify.printRoutes());
 });
+*/
 
 // Run the server!
 const start = async () => {
   try {
     await fastify.listen(conf.PORT, "0.0.0.0");
-    fastify.swagger();
-    // log.info({ a: "xscs" });
     log.info(`server listening on ${fastify.server.address().port}`);
+    console.log(`Listening for incoming requests.`);
   } catch (err) {
     log.error(err);
     process.exit(1);
